@@ -66,16 +66,7 @@ Email Guardian is an intelligent email security solution that analyzes your Gmai
 6. **Access the application**
    Open your browser and navigate to `http://localhost:5003`
 
-## Screenshots
 
-### Dashboard View
-![Dashboard](screenshots/dashboard.png)
-
-### Email Analysis
-![Analysis](screenshots/analysis.png)
-
-### Risk Level Display
-![Risk Levels](screenshots/risk-levels.png)
 
 ## Security Features
 
@@ -84,13 +75,7 @@ Email Guardian is an intelligent email security solution that analyzes your Gmai
 - **Content Analysis**: Uses GPT-4 to identify phishing attempts and social engineering
 - **Sender Verification**: Checks for display name spoofing and suspicious sender domains
 
-## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
