@@ -2,7 +2,6 @@
 
 A powerful AI-driven email security tool that protects your Gmail inbox from phishing, spam, and malicious content using GPT-4.
 
-![Email Guardian Dashboard](screenshots/dashboard.png)
 
 ## Overview
 
