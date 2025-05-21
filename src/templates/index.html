@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Guardian</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Email Guardian</h1>
+            <p class="text-gray-600">AI-powered email security analysis</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold">Your Emails</h2>
+                <button id="authButton" onclick="handleAuth()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Connect Gmail
+                </button>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span class="ml-2">Loading...</span>
+                </div>
+            </div>
+
+            <div id="emailList" class="space-y-4">
+                <!-- Emails will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div id="analysisModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl mx-auto mt-20">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">Email Analysis</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="analysisContent" class="max-h-[70vh] overflow-y-auto">
+                <!-- Analysis results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 

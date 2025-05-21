@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Guardian - AI-Powered Email Security</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <i class="fas fa-shield-alt text-blue-600 text-2xl mr-2"></i>
+                            <span class="text-xl font-bold text-gray-800">Email Guardian</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h2 class="text-gray-600 text-sm">Total Emails</h2>
+                            <p class="text-2xl font-semibold text-gray-800" id="total-emails">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-red-100 text-red-600">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h2 class="text-gray-600 text-sm">Suspicious Emails</h2>
+                            <p class="text-2xl font-semibold text-gray-800" id="suspicious-emails">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h2 class="text-gray-600 text-sm">Safe Emails</h2>
+                            <p class="text-2xl font-semibold text-gray-800" id="safe-emails">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email List -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Emails</h3>
+                </div>
+                <div class="divide-y divide-gray-200" id="email-list">
+                    <!-- Email items will be dynamically inserted here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Email Detail Modal -->
+    <div id="email-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-4/5 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900" id="modal-subject"></h3>
+                <div class="mt-2 px-7 py-3">
+                    <div class="text-sm text-gray-500" id="modal-sender"></div>
+                    <div class="mt-4 text-sm text-gray-500" id="modal-body"></div>
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-900">Analysis Results</h4>
+                        <div class="mt-2" id="modal-analysis"></div>
+                    </div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="close-modal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display emails
+        async function fetchEmails() {
+            try {
+                const response = await fetch('/api/emails');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    updateStats(data.emails);
+                    displayEmails(data.emails);
+                }
+            } catch (error) {
+                console.error('Error fetching emails:', error);
+            }
+        }
+
+        // Update statistics
+        function updateStats(emails) {
+            const totalEmails = emails.length;
+            const suspiciousEmails = emails.filter(email => email.risk_level === 'HIGH' || email.risk_level === 'CRITICAL').length;
+            const safeEmails = emails.filter(email => email.risk_level === 'SAFE' || email.risk_level === 'LOW').length;
+
+            document.getElementById('total-emails').textContent = totalEmails;
+            document.getElementById('suspicious-emails').textContent = suspiciousEmails;
+            document.getElementById('safe-emails').textContent = safeEmails;
+        }
+
+        // Display emails in the list
+        function displayEmails(emails) {
+            const emailList = document.getElementById('email-list');
+            emailList.innerHTML = '';
+
+            emails.forEach(email => {
+                const riskColor = getRiskColor(email.risk_level);
+                const emailElement = document.createElement('div');
+                emailElement.className = 'p-4 hover:bg-gray-50 cursor-pointer';
+                emailElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-envelope text-gray-500"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${email.subject}</div>
+                                <div class="text-sm text-gray-500">${email.sender}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${riskColor}">
+                                ${email.risk_level}
+                            </span>
+                            <span class="ml-4 text-sm text-gray-500">${email.date}</span>
+                        </div>
+                    </div>
+                `;
+                emailElement.addEventListener('click', () => showEmailDetails(email.id));
+                emailList.appendChild(emailElement);
+            });
+        }
+
+        // Get color based on risk level
+        function getRiskColor(riskLevel) {
+            switch (riskLevel) {
+                case 'CRITICAL':
+                    return 'bg-red-100 text-red-800';
+                case 'HIGH':
+                    return 'bg-orange-100 text-orange-800';
+                case 'MEDIUM':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'LOW':
+                    return 'bg-blue-100 text-blue-800';
+                default:
+                    return 'bg-green-100 text-green-800';
+            }
+        }
+
+        // Show email details in modal
+        async function showEmailDetails(emailId) {
+            try {
+                const response = await fetch(`/api/email/${emailId}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const email = data.email;
+                    document.getElementById('modal-subject').textContent = email.subject;
+                    document.getElementById('modal-sender').textContent = `From: ${email.sender}`;
+                    document.getElementById('modal-body').textContent = email.body;
+                    
+                    const analysis = email.analysis;
+                    const analysisHtml = `
+                        <div class="mt-2">
+                            <div class="text-sm">
+                                <span class="font-medium">Risk Score:</span> ${analysis.risk_score}/100
+                            </div>
+                            <div class="text-sm mt-1">
+                                <span class="font-medium">Risk Level:</span> 
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRiskColor(analysis.risk_level)}">
+                                    ${analysis.risk_level}
+                                </span>
+                            </div>
+                            <div class="text-sm mt-1">
+                                <span class="font-medium">Recommendation:</span> ${analysis.recommendation}
+                            </div>
+                            <div class="mt-2">
+                                <span class="font-medium">Findings:</span>
+                                <ul class="list-disc list-inside mt-1">
+                                    ${analysis.findings.map(finding => `<li class="text-sm text-gray-600">${finding}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('modal-analysis').innerHTML = analysisHtml;
+                    
+                    document.getElementById('email-modal').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching email details:', error);
+            }
+        }
+
+        // Close modal
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('email-modal').classList.add('hidden');
+        });
+
+        // Initial fetch
+        fetchEmails();
+
+        // Refresh emails every 5 minutes
+        setInterval(fetchEmails, 300000);
+    </script>
+</body>
+</html> 
